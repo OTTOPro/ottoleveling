@@ -1,0 +1,331 @@
+/* Self-hosted fonts via @fontsource - no Google CDN. */
+@import '@fontsource/cinzel/400.css';
+@import '@fontsource/cinzel/600.css';
+@import '@fontsource/cinzel/700.css';
+@import '@fontsource/lexend-deca/400.css';
+@import '@fontsource/lexend-deca/500.css';
+@import '@fontsource/lexend-deca/600.css';
+@import '@fontsource/lexend-deca/700.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+
+@import 'tailwindcss';
+
+/*
+  `static` keeps every variable in the emitted CSS even when no Tailwind
+  utility class references it. Required because we consume the pillar
+  colors and system tints via raw `var(--color-pillar-X)` inside inline
+  `style=""` attributes - Tailwind's class scanner doesn't see those and
+  would tree-shake the vars (the bug that left Stats / Objectives all-white
+  on first paint).
+*/
+@theme static {
+  /* Surfaces - light, premium SaaS feel */
+  --color-bg: #ffffff;
+  --color-bg-elevated: #fafafc;
+  --color-bg-sunken: #f4f4f8;
+
+  /* Text - dark, high contrast on white */
+  --color-text-primary: #24252c;
+  --color-text-secondary: #6e6a7c;
+  --color-text-muted: #8b8893;
+
+  /* Borders - 1px hairlines */
+  --color-border-subtle: #e5e5ea;
+  --color-border-emphasis: #d8d8de;
+
+  /* System - primary purple, used sparingly */
+  --color-system: #5f33e1;
+  --color-system-light: #ede4ff;
+  --color-system-glow: #6e45e8;
+  --color-system-dim: #2a1b4d;
+
+  /* Pillar vibrant accents */
+  --color-pillar-body: #ef4444;
+  --color-pillar-mind: #7c3aed;
+  --color-pillar-finance: #10b981;
+  --color-pillar-projects: #2563eb;
+
+  /* Pillar pastel backgrounds (HYBRIDE) */
+  --color-pillar-body-bg: #ffe4e4;
+  --color-pillar-mind-bg: #ede4ff;
+  --color-pillar-finance-bg: #d1fae5;
+  --color-pillar-projects-bg: #dbeafe;
+
+  /* Objective state colors */
+  --color-success: #10b981;
+  --color-success-bg: #d1fae5;
+  --color-paused: #d97706;
+  --color-paused-bg: #fef3c7;
+  --color-completed: #5f33e1;
+  --color-completed-bg: #ede4ff;
+  --color-abandoned: #9ca0ae;
+  --color-abandoned-bg: #f2f2f5;
+
+  /* Outcome semantics (keep names for compat with existing components) */
+  --color-failure: #ef4444;
+  --color-skip: #9ca0ae;
+
+  /* Fonts - 4 faces per HYBRIDE brief */
+  --font-display: 'Cinzel', 'Fraunces', 'Iowan Old Style', serif;
+  --font-heading: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+  --font-body: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+}
+
+@layer base {
+  html,
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-feature-settings: 'ss01', 'cv11';
+    min-height: 100vh;
+  }
+
+  /*
+    Headings use Lexend Deca by default (the HYBRIDE heading face).
+    Cinzel is ceremony-only - use .cinzel-tag or font-display on
+    specific elements (Avatar, RankBadge, hero title moments).
+  */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Selection - primary purple at 30% alpha */
+  ::selection {
+    background-color: rgba(95, 51, 225, 0.3);
+    color: var(--color-text-primary);
+  }
+
+  /* Form controls inherit the body font */
+  input,
+  select,
+  textarea,
+  button {
+    font-family: inherit;
+    color: inherit;
+    background-color: transparent;
+  }
+
+  /* Remove the WebKit autofill yellow - light theme: white inset */
+  input:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-text-primary);
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  }
+}
+
+@layer components {
+  /*
+    The signature [ TAG ] heading style - mono + uppercase + bracket marks.
+    HYBRIDE: uses Lexend Deca (not Cinzel), defaults to muted color.
+    Use .cinzel-tag for ceremony moments (rank transitions, hero titles).
+  */
+  .system-tag {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /*
+    Ceremony variant - Cinzel + primary purple. Used for rank transitions,
+    achievement unlocks, hero card titles. Kept deliberately rare.
+  */
+  .cinzel-tag {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-system);
+  }
+
+  /* Mono numeric - tabular figures for stat alignment. */
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /*
+    Bilan narrative styling. Applied to a wrapper that holds {@html marked(...)}
+    output. DOMPurify sanitized before injection (defense in depth).
+    Do NOT use for user-typed content without sanitization.
+
+    Light-theme inversion: previously dark-bg assumptions flipped.
+  */
+  .narrative {
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+  .narrative h2 {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-system);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .narrative h2:first-child {
+    margin-top: 0;
+  }
+  .narrative h3 {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .narrative p {
+    margin: 0.5rem 0;
+    color: var(--color-text-primary);
+  }
+  .narrative ul,
+  .narrative ol {
+    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+    color: var(--color-text-secondary);
+  }
+  .narrative li {
+    margin: 0.2rem 0;
+  }
+  .narrative li::marker {
+    color: var(--color-text-muted);
+  }
+  .narrative strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+  .narrative em {
+    color: var(--color-text-secondary);
+    font-style: italic;
+  }
+  .narrative code {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-system);
+    background-color: var(--color-bg-sunken);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+  }
+  .narrative a {
+    color: var(--color-system);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .narrative table {
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+    width: 100%;
+    font-variant-numeric: tabular-nums;
+  }
+  .narrative th,
+  .narrative td {
+    border: 1px solid var(--color-border-subtle);
+    padding: 0.35rem 0.5rem;
+    text-align: left;
+  }
+  .narrative th {
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    background-color: var(--color-bg-elevated);
+  }
+}
+
+@layer components {
+  /*
+    Subtle 1.5s pulse for [ TAG ] when fresh agent output arrives. Opacity
+    oscillates between 1.0 and 0.7 with a system-purple tint. NEVER use this
+    on rotating UI state - only on transient "look here" moments.
+  */
+  @keyframes system-tag-pulse {
+    0%,
+    100% {
+      opacity: 1;
+      text-shadow: none;
+    }
+    50% {
+      opacity: 0.7;
+      text-shadow: 0 0 6px var(--color-system-glow);
+    }
+  }
+  .system-tag--pulsing {
+    animation: system-tag-pulse 1.5s ease-in-out 0s 3;
+  }
+
+  /*
+    4s level-up celebration applied to a /stats pillar row when the pillar
+    levels up. Background tint pulse. The [ LEVEL UP ] badge fades in/out
+    via Svelte transition separately.
+  */
+  @keyframes level-up-pulse {
+    0% {
+      background-color: color-mix(
+        in oklab,
+        var(--level-up-color, var(--color-system)) 4%,
+        transparent
+      );
+    }
+    20% {
+      background-color: color-mix(
+        in oklab,
+        var(--level-up-color, var(--color-system)) 18%,
+        transparent
+      );
+    }
+    100% {
+      background-color: color-mix(
+        in oklab,
+        var(--level-up-color, var(--color-system)) 4%,
+        transparent
+      );
+    }
+  }
+  .level-up-pulse {
+    animation: level-up-pulse 4s ease-out 0s 1;
+  }
+}
+
+@layer utilities {
+  /*
+    Focus-visible outline for keyboard navigation.
+    2px primary purple, offset 2px, 6px radius.
+    Applied to all interactive elements across BottomNav, SectionCards,
+    TimeRange pills, forms, banners, links.
+  */
+  a:focus-visible,
+  button:focus-visible,
+  [role='button']:focus-visible {
+    outline: 2px solid var(--color-system);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /*
+    Scoped reduced-motion rule.
+    Disables global keyframe-driven animations when the user has requested
+    reduced motion. Scoped to app.css class names only (not the Ceremony /
+    SystemNotice components which handle .ring--reduced / .notice--reduced
+    via their own <style> blocks).
+  */
+  @media (prefers-reduced-motion: reduce) {
+    .system-tag--pulsing,
+    .level-up-pulse {
+      animation: none !important;
+    }
+  }
+}
