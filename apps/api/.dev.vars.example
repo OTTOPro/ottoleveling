@@ -1,0 +1,27 @@
+# Copy to .dev.vars for local development. .dev.vars is gitignored.
+# Everything here runs without any external account.
+
+ENV=development
+DEV_TOKEN=localdevtoken
+LLM_PROVIDER=mock
+PUSH_PROVIDER=mock
+# 32 zero bytes, base64. Fine locally; generate a real one for production:
+#   openssl rand -base64 32
+ENCRYPTION_KEY=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+
+# Optional. Fictional example profile: replace with your own.
+PLAYER_NAME=Player
+PLAYER_PROFILE="Player: backend developer at a mid-size company, works on side
+projects in the evening. Runs twice a week, plays recreational
+football on weekends. Long-term index-fund investor (no crypto).
+
+PHYSICAL CONSTRAINT (example, fictional):
+- Recurring lower-back sensitivity.
+Forbidden: heavy deadlifts, loaded spinal flexion, high-impact
+plyometrics. Prioritize: core stability (dead bugs, bird dogs,
+side planks), hip mobility, walking, swimming."
+DAY_JOB_EXCLUSIONS=employer client work, employer internal tooling, on-call tickets
+
+# To use a real LLM instead of the mock:
+# LLM_PROVIDER=groq
+# GROQ_API_KEY=...

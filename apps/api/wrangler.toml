@@ -1,0 +1,139 @@
+name = "ottoleveling-api"
+main = "src/index.ts"
+compatibility_date = "2026-05-20"
+compatibility_flags = ["nodejs_compat"]
+
+# The top level is the local development configuration: `pnpm dev:api` runs
+# with mock LLM and mock push, no external account needed. Production lives
+# in [env.production] below and is deployed with `wrangler deploy --env production`.
+# Wrangler does not inherit bindings or vars into an environment, so the
+# production block repeats them.
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ottoleveling"
+database_id = "<your-d1-id>"
+migrations_dir = "../../migrations"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "<your-kv-id>"
+
+[[durable_objects.bindings]]
+name = "SYSTEM_AGENT"
+class_name = "SystemAgent"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SystemAgent"]
+
+[[queues.producers]]
+binding = "LLM_JOBS_QUEUE"
+queue = "ottoleveling-llm-jobs"
+
+[[queues.producers]]
+binding = "EVENTS_QUEUE"
+queue = "ottoleveling-events"
+
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "ottoleveling-orchestration"
+
+[[workflows]]
+name = "ottoleveling-daily-cycle"
+binding = "DAILY_CYCLE_WORKFLOW"
+class_name = "DailyCycleWorkflow"
+
+[[workflows]]
+name = "ottoleveling-objective-milestone"
+binding = "OBJECTIVE_MILESTONE_WORKFLOW"
+class_name = "ObjectiveMilestoneWorkflow"
+
+# Prompt templates are bundled as text.
+[[rules]]
+type = "Text"
+globs = ["**/*.md"]
+fallthrough = true
+
+[vars]
+ENV = "development"
+LLM_PROVIDER = "mock"
+LLM_MODEL = "llama-3.3-70b-versatile"
+PUSH_PROVIDER = "mock"
+WEB_ORIGIN = "http://localhost:5173"
+VAPID_SUBJECT = "mailto:<your-email>"
+VAPID_PUBLIC_KEY = "<your-vapid-public-key>"
+GOOGLE_HEALTH_CLIENT_ID = "<your-client-id>"
+GOOGLE_HEALTH_REDIRECT_URI = "http://localhost:8787/api/data-sources/google_health/callback"
+SPOTIFY_CLIENT_ID = "<your-client-id>"
+SPOTIFY_REDIRECT_URI = "http://127.0.0.1:8787/api/data-sources/spotify/callback"
+CLOUDFLARE_ACCESS_TEAM_DOMAIN = "<your-access-team>.cloudflareaccess.com"
+CLOUDFLARE_ACCESS_AUD = "<your-access-aud>"
+CLOUDFLARE_ACCESS_ALLOWED_EMAIL = "<your-email>"
+
+# Secrets and local overrides go in .dev.vars (see .dev.vars.example).
+# In production, set them with `wrangler secret put <NAME> --env production`:
+#   GROQ_API_KEY, VAPID_PRIVATE_KEY, GOOGLE_HEALTH_CLIENT_SECRET,
+#   SPOTIFY_CLIENT_SECRET, ENCRYPTION_KEY, PLAYER_PROFILE, DAY_JOB_EXCLUSIONS.
+# PLAYER_PROFILE is a secret because it usually holds health information.
+
+# ============================================================
+# Production
+# ============================================================
+[env.production]
+name = "ottoleveling-api"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "ottoleveling"
+database_id = "<your-d1-id>"
+migrations_dir = "../../migrations"
+
+[[env.production.kv_namespaces]]
+binding = "KV"
+id = "<your-kv-id>"
+
+[[env.production.durable_objects.bindings]]
+name = "SYSTEM_AGENT"
+class_name = "SystemAgent"
+
+[[env.production.queues.producers]]
+binding = "LLM_JOBS_QUEUE"
+queue = "ottoleveling-llm-jobs"
+
+[[env.production.queues.producers]]
+binding = "EVENTS_QUEUE"
+queue = "ottoleveling-events"
+
+[[env.production.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "ottoleveling-orchestration"
+
+[[env.production.workflows]]
+name = "ottoleveling-daily-cycle"
+binding = "DAILY_CYCLE_WORKFLOW"
+class_name = "DailyCycleWorkflow"
+
+[[env.production.workflows]]
+name = "ottoleveling-objective-milestone"
+binding = "OBJECTIVE_MILESTONE_WORKFLOW"
+class_name = "ObjectiveMilestoneWorkflow"
+
+[env.production.vars]
+ENV = "production"
+LLM_PROVIDER = "groq"
+LLM_MODEL = "llama-3.3-70b-versatile"
+PUSH_PROVIDER = "real"
+WEB_ORIGIN = "https://<your-web-host>"
+VAPID_SUBJECT = "mailto:<your-email>"
+VAPID_PUBLIC_KEY = "<your-vapid-public-key>"
+GOOGLE_HEALTH_CLIENT_ID = "<your-client-id>"
+GOOGLE_HEALTH_REDIRECT_URI = "https://<your-api-host>/api/data-sources/google_health/callback"
+SPOTIFY_CLIENT_ID = "<your-client-id>"
+SPOTIFY_REDIRECT_URI = "https://<your-api-host>/api/data-sources/spotify/callback"
+CLOUDFLARE_ACCESS_TEAM_DOMAIN = "<your-access-team>.cloudflareaccess.com"
+CLOUDFLARE_ACCESS_AUD = "<your-access-aud>"
+CLOUDFLARE_ACCESS_ALLOWED_EMAIL = "<your-email>"
