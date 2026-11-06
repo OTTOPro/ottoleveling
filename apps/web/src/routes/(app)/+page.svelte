@@ -340,7 +340,7 @@
       >
     </p>
   {:else if questsState.quests.length === 0}
-    <p class="empty-state">No quests assigned. Trigger generation from the System tab.</p>
+    <p class="empty-state">No quests assigned. Trigger generation from System, then Admin.</p>
   {:else}
     <div class="quest-list">
       {#each sortedQuests() as q, i (q.id)}
