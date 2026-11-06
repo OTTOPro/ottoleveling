@@ -3,7 +3,7 @@
   Cinzel font for the letter (ceremony: identity display).
 
   Usage:
-    <Avatar letter="O" size={44} />
+    <Avatar letter="P" size={44} />
 -->
 <script lang="ts">
   interface Props {
@@ -11,7 +11,7 @@
     size?: number;
   }
 
-  let { letter = 'O', size = 44 }: Props = $props();
+  let { letter = '?', size = 44 }: Props = $props();
 
   const letterSize = $derived(Math.round(size * 0.42));
 </script>

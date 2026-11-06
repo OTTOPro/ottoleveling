@@ -258,7 +258,7 @@
   <!-- AppHeader: Avatar + greeting/name left, chips + RankBadge right -->
   <header class="today-header">
     <div class="today-header__left">
-      <Avatar letter="O" size={46} />
+      <Avatar letter={PLAYER_NAME} size={46} />
       <div class="today-header__text">
         <div class="today-header__greeting">{greeting()},</div>
         <div class="today-header__name">{PLAYER_NAME}</div>
