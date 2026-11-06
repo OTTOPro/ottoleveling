@@ -141,6 +141,7 @@ describe('post-generation validator', () => {
       ],
     };
     MockProvider.setFixture(JSON.stringify(clean));
+    const log = vi.spyOn(console, 'log');
 
     // regenerate: the first test already generated today's batch, and generate is idempotent per date.
     const res = await SELF.fetch(authed('/api/quests/regenerate', { method: 'POST', body: '{}' }));
@@ -151,5 +152,10 @@ describe('post-generation validator', () => {
       'Read 20 pages',
       'Write the search endpoint',
     ]);
+    // The pass is logged even when nothing is rejected.
+    expect(log).toHaveBeenCalledWith(
+      '[quest-validator] checked 4 quests against 7 patterns, rejected 0',
+    );
+    log.mockRestore();
   });
 });

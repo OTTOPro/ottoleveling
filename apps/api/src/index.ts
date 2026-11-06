@@ -984,6 +984,11 @@ export class SystemAgent extends DurableObject<Bindings> {
         patterns,
         (pillarId) => inert.find((q) => q.pillar_id === pillarId) ?? null,
       );
+      // One line per generation, so the logs show the check ran even when
+      // nothing was rejected.
+      console.log(
+        `[quest-validator] checked ${parsed.quests.length} quests against ${patterns.length} patterns, rejected ${checked.rejected.length}`,
+      );
       if (checked.rejected.length > 0) {
         console.warn(
           '[quest-validator] rejected generated quests',
