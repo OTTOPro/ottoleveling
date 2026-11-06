@@ -1,0 +1,50 @@
+{
+  "name": "ottoleveling",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Single-player progress tracker: an LLM writes daily quests, deterministic code keeps the score.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "dev:api": "pnpm --filter ottoleveling-api dev",
+    "dev:web": "pnpm --filter ottoleveling-web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "deploy:api": "pnpm --filter ottoleveling-api run deploy",
+    "deploy:consumer": "pnpm --filter ottoleveling-queue-consumer run deploy",
+    "deploy:web": "pnpm --filter ottoleveling-web run deploy",
+    "db:migrate:local": "pnpm --filter ottoleveling-api exec wrangler d1 migrations apply ottoleveling --local",
+    "db:migrate:remote": "pnpm --filter ottoleveling-api exec wrangler d1 migrations apply ottoleveling --remote --env production",
+    "db:reset:local": "pnpm --filter ottoleveling-api exec rimraf .wrangler/state/v3/d1 && pnpm db:migrate:local"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-svelte": "^3.24.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.3.0",
+    "prettier-plugin-svelte": "^4.1.1",
+    "rimraf": "^6.1.3",
+    "svelte": "^5.55.9",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.72.1"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "workerd"
+    ]
+  }
+}
