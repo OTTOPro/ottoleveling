@@ -53,7 +53,13 @@ import {
   getLatestCheckin,
   getPillarLevels,
   getRecentPerformance,
+  getTemplateContraindicationRows,
 } from './lib/d1-reads';
+import {
+  forbiddenPatternsFromProfile,
+  forbiddenPatternsFromTemplates,
+  validateQuests,
+} from './lib/quest-validator';
 import { getLifetimeStats, recomputeLifetimeStats } from './lib/lifetime-stats';
 import { getRecentAchievements, getClosestToThreshold } from './lib/achievements/evaluate';
 import { buildGenerationContext } from './do/generation-context';
@@ -848,6 +854,7 @@ export class SystemAgent extends DurableObject<Bindings> {
       yesterdayCheckinRow,
       calibrationSignals,
       activeProjects,
+      contraindicationRows,
     ] = await Promise.all([
       getActiveObjectives(db),
       getPillarLevels(db),
@@ -886,6 +893,7 @@ export class SystemAgent extends DurableObject<Bindings> {
       }),
       // {ACTIVE_PROJECTS}
       getActiveProjects(db, { statusFilter: 'active' }),
+      getTemplateContraindicationRows(db),
     ]);
 
     // Forward-fill the cached counter from authoritative D1.
@@ -960,6 +968,29 @@ export class SystemAgent extends DurableObject<Bindings> {
       console.error('[SystemAgent.generateDaily] LLM call/parse failed, using fallback:', err);
       parsed = buildFallbackResponse();
       source = 'fallback';
+    }
+
+    // Deterministic safety net: reject LLM quests that match a forbidden
+    // pattern from the player profile or a template contraindication, before
+    // anything reaches D1. The fallback batch is inert and skips this step.
+    if (source === 'llm') {
+      const patterns = [
+        ...forbiddenPatternsFromProfile(player.profile),
+        ...forbiddenPatternsFromTemplates(contraindicationRows),
+      ];
+      const inert = buildFallbackResponse().quests;
+      const checked = validateQuests(
+        parsed.quests,
+        patterns,
+        (pillarId) => inert.find((q) => q.pillar_id === pillarId) ?? null,
+      );
+      if (checked.rejected.length > 0) {
+        console.warn(
+          '[quest-validator] rejected generated quests',
+          JSON.stringify({ date: today, rejected: checked.rejected }),
+        );
+        parsed = { ...parsed, quests: checked.quests };
+      }
     }
 
     // Insert all quests with a shared generation_id.
@@ -1858,7 +1889,8 @@ function uuidV4(): string {
  * Medically inert fallback batch, used when the LLM call fails or its response
  * fails validation. Observational only: no movement is prescribed for any
  * pillar, so it cannot conflict with whatever constraints the player profile
- * declares.
+ * declares. The post-generation validator also uses these quests as
+ * replacements for rejected ones.
  *
  * generate-daily-fallback.test.ts asserts that no body fallback title contains
  * exercise keywords.

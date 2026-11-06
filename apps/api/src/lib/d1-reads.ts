@@ -195,3 +195,19 @@ export async function countMissedOpportunities(
   return row?.n ?? 0;
 }
 
+/**
+ * Template rows that declare contraindications, for the post-generation
+ * validator. Inactive templates are included: a contraindication describes
+ * the player, not the template's schedule.
+ */
+export async function getTemplateContraindicationRows(
+  db: D1Database,
+): Promise<{ id: number; metadata: string | null }[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT id, metadata FROM quest_templates
+       WHERE deleted_at IS NULL AND metadata LIKE '%contraindicated%'`,
+    )
+    .all<{ id: number; metadata: string | null }>();
+  return results;
+}

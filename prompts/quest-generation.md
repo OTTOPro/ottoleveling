@@ -113,6 +113,7 @@ These are the user's active personal projects (NOT day job). Quests MAY referenc
 11. PHYSICAL CONSTRAINTS: split into PERMANENT and PHASE-AWARE:
     - PERMANENT (always forbidden): every movement listed as Forbidden in PLAYER CONTEXT, and every movement listed in a template's contraindications.
     - PHASE-AWARE (forbidden by default; permitted only when an active objective phase explicitly allows): plyometrics (jumps, hops, bounds), sprinting and high-impact running. When no active objective provides phase context, treat as forbidden.
+    A deterministic validator rereads your output and replaces any body quest that matches a forbidden pattern. Do not rely on it: never emit such a quest.
 12. FINANCE CONSTRAINT - NEVER generate quests related to crypto, even for learning purposes.
 ## STRICTNESS RULES
 
