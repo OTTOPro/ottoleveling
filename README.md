@@ -1,6 +1,19 @@
 # OttoLeveling
 
-OttoLeveling turns personal goals into daily quests across four pillars: body, mind, finance and projects. An agent called The System writes the quests and periodic reports in the voice of a game interface; plain TypeScript decides everything that is counted. It is a single-user PWA that runs entirely on Cloudflare.
+OttoLeveling turns personal goals into daily quests across four pillars: body, mind, finance and projects. An agent called The System writes the quests and periodic reports in the voice of a game interface; plain TypeScript decides everything that is counted. It is a single-user PWA that runs entirely on Cloudflare. I built it for myself and I use it every day.
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/today.png" width="300" alt="Today screen with the day's quests" /><br />
+      <sub>Local build, fictional player</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/weekly-report.png" width="300" alt="Weekly report in fallback mode" /><br />
+      <sub>Local build, fictional player</sub>
+    </td>
+  </tr>
+</table>
 
 The name is a nod to Solo Leveling.
 
