@@ -535,8 +535,8 @@ export class SystemAgent extends DurableObject<Bindings> {
       return { metrics_persisted: 0, sync_status: 'failed', error_message: 'no_tokens_stored' };
     }
 
-    let accessToken = await decrypt(tokenRow.access_token_encrypted, this.env);
-    const refreshToken = await decrypt(tokenRow.refresh_token_encrypted, this.env);
+    let accessToken = await decrypt(tokenRow.access_token_encrypted, this.env, providerName);
+    const refreshToken = await decrypt(tokenRow.refresh_token_encrypted, this.env, providerName);
     const provider = getDataSourceProvider(providerName, this.env);
 
     // Try sync with current token. On 401, refresh + retry once.
@@ -552,8 +552,8 @@ export class SystemAgent extends DurableObject<Bindings> {
             `UPDATE data_source_tokens SET access_token_encrypted = ?, refresh_token_encrypted = ?, expires_at = ?, updated_at = datetime('now') WHERE provider = ?`,
           )
             .bind(
-              await encrypt(refreshed.access_token, this.env),
-              await encrypt(refreshed.refresh_token, this.env),
+              await encrypt(refreshed.access_token, this.env, providerName),
+              await encrypt(refreshed.refresh_token, this.env, providerName),
               refreshed.expires_at,
               providerName,
             )

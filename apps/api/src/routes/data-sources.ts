@@ -108,8 +108,8 @@ dataSourcesPublicRouter.get('/:provider/callback', async (c) => {
       codeVerifier,
       redirectUri: redirectUriFor(provider, c.env),
     });
-    const accessEncrypted = await encrypt(tokens.access_token, c.env);
-    const refreshEncrypted = await encrypt(tokens.refresh_token, c.env);
+    const accessEncrypted = await encrypt(tokens.access_token, c.env, provider);
+    const refreshEncrypted = await encrypt(tokens.refresh_token, c.env, provider);
     await c.env.DB.batch([
       c.env.DB.prepare(
         `INSERT INTO data_source_tokens (provider, access_token_encrypted, refresh_token_encrypted, expires_at)

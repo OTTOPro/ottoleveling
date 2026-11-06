@@ -1,0 +1,84 @@
+name = "ottoleveling-queue-consumer"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Consumes the two queues produced by ottoleveling-api and calls back into its
+# SystemAgent Durable Object. Not needed for local development: manual
+# regeneration runs inline in the API. Deploy with `wrangler deploy --env production`.
+
+[vars]
+ENV = "development"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ottoleveling"
+database_id = "<your-d1-id>"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "<your-kv-id>"
+
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "ottoleveling-orchestration"
+
+[[durable_objects.bindings]]
+name = "SYSTEM_AGENT"
+script_name = "ottoleveling-api"
+class_name = "SystemAgent"
+
+[[queues.consumers]]
+queue = "ottoleveling-llm-jobs"
+max_batch_size = 1
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "ottoleveling-llm-jobs-dlq"
+
+[[queues.consumers]]
+queue = "ottoleveling-events"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 3
+dead_letter_queue = "ottoleveling-events-dlq"
+
+# ============================================================
+# Production
+# ============================================================
+[env.production]
+name = "ottoleveling-queue-consumer"
+
+[env.production.vars]
+ENV = "production"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "ottoleveling"
+database_id = "<your-d1-id>"
+
+[[env.production.kv_namespaces]]
+binding = "KV"
+id = "<your-kv-id>"
+
+[[env.production.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "ottoleveling-orchestration"
+
+[[env.production.durable_objects.bindings]]
+name = "SYSTEM_AGENT"
+script_name = "ottoleveling-api"
+class_name = "SystemAgent"
+
+[[env.production.queues.consumers]]
+queue = "ottoleveling-llm-jobs"
+max_batch_size = 1
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "ottoleveling-llm-jobs-dlq"
+
+[[env.production.queues.consumers]]
+queue = "ottoleveling-events"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 3
+dead_letter_queue = "ottoleveling-events-dlq"
